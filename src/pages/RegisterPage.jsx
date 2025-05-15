@@ -9,7 +9,7 @@ function RegisterPage() {
   const handleRegister = ({ name, email, password }) => {
     try {
       registerUser({ name, email, password });
-      navigate("/contacts");
+      navigate("/");
     } catch (err) {
       alert(err.message);
     }

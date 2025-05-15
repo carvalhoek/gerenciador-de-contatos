@@ -31,6 +31,12 @@ export function loginUser({ email, password }) {
   saveState(state);
 }
 
+export function logoutUser() {
+  const state = loadState();
+  state.currentUser = null;
+  saveState(state);
+}
+
 // Pegar usuário logado
 export function getCurrentUser() {
   const state = loadState();

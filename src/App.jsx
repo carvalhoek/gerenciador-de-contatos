@@ -1,35 +1,40 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// src/App.jsx
+import React from "react";
+import { Outlet, Link } from "react-router-dom";
+import { logoutUser } from "./utils/auth";
+import { useNavigate } from "react-router-dom";
+import HeaderButton from "./components/HeaderButton";
+import AccountCard from "./components/AccountCard";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const navigate = useNavigate();
 
+  function handleLogout() {
+    logoutUser();
+    navigate("/login");
+  }
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className="min-h-screen flex flex-col">
+      <header className="bg-blue-600 text-white p-4 flex justify-between">
+        <h1 className="text-xl font-bold">Gerenciador de contatos</h1>
+        <nav className="space-x-4">
+          <Link to="/" className="hover:underline">
+            Contatos
+          </Link>
+          <AccountCard handleLogout={handleLogout} />
+        </nav>
+      </header>
 
-export default App
+      {/* Conteúdo específico de cada rota */}
+      <main className="flex-1 p-6 bg-slate-100">
+        <Outlet />
+      </main>
+
+      {/* Rodapé opcional */}
+      <footer className="bg-gray-200 text-center p-4">
+        © 2025 Duna Solutions
+      </footer>
+    </div>
+  );
+}
+export default App;

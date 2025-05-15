@@ -8,7 +8,7 @@ function LoginPage() {
   const handleLogin = ({ email, password }) => {
     try {
       loginUser({ email, password });
-      navigate("/contacts");
+      navigate("/");
     } catch (err) {
       alert(err.message);
     }

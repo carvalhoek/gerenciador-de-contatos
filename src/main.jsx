@@ -7,10 +7,14 @@ import LoginPage from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 import Contacts from "./pages/Contacts.jsx";
 const router = createBrowserRouter([
-  { path: "/", element: <App /> },
+  {
+    path: "/",
+    element: <App />,
+    // Colocar a pagina Contacts como filha faz com se torne mais fácil a expansão do projeto em caso de necessidade de mais telas
+    children: [{ index: true, element: <Contacts /> }],
+  },
   { path: "/login", element: <LoginPage /> },
   { path: "/register", element: <RegisterPage /> },
-  { path: "/contacts", element: <Contacts /> },
 ]);
 createRoot(document.getElementById("root")).render(
   <StrictMode>
