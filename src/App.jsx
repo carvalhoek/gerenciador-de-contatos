@@ -1,17 +1,19 @@
 // src/App.jsx
 import React from "react";
 import { Outlet, Link } from "react-router-dom";
-import { logoutUser } from "./utils/auth";
+import { logoutUser, deleteCurrentUser } from "./utils/auth";
 import { useNavigate } from "react-router-dom";
-import HeaderButton from "./components/HeaderButton";
 import AccountCard from "./components/AccountCard";
-
 function App() {
   const navigate = useNavigate();
 
   function handleLogout() {
     logoutUser();
     navigate("/login");
+  }
+  function handleDelete() {
+    deleteCurrentUser();
+    navigate("/register");
   }
   return (
     <div className="min-h-screen flex flex-col">
@@ -21,16 +23,18 @@ function App() {
           <Link to="/" className="hover:underline">
             Contatos
           </Link>
-          <AccountCard handleLogout={handleLogout} />
+          <AccountCard
+            handleLogout={handleLogout}
+            handleDelete={handleDelete}
+          />
         </nav>
       </header>
 
-      {/* Conteúdo específico de cada rota */}
+      {/* Conteúdo específico de cada rota, faz com que o cabeçalho e footer estejam nas páginas filhas */}
       <main className="flex-1 p-6 bg-slate-100">
         <Outlet />
       </main>
 
-      {/* Rodapé opcional */}
       <footer className="bg-gray-200 text-center p-4">
         © 2025 Duna Solutions
       </footer>

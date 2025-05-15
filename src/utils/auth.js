@@ -17,6 +17,7 @@ export function registerUser({ name, email, password }) {
     throw new Error("Este e-mail já está em uso.");
   }
   state.users[email] = { name, password, contacts: [] };
+  state.currentUser = email;
   saveState(state);
 }
 
@@ -37,8 +38,28 @@ export function logoutUser() {
   saveState(state);
 }
 
+// Deleta o usuário atual
+export function deleteCurrentUser() {
+  const state = loadState();
+  const email = state.currentUser;
+  if (!email) {
+    throw new Error("Nenhum usuário está logado.");
+  }
+  delete state.users[email];
+  state.currentUser = null;
+  saveState(state);
+}
+
 // Pegar usuário logado
 export function getCurrentUser() {
   const state = loadState();
   return state.currentUser ? state.users[state.currentUser] : null;
+}
+
+export function confirmCurrentUserPassword(password) {
+  const currentUser = getCurrentUser();
+  if (!currentUser || currentUser.password !== password) {
+    return false;
+  }
+  return true;
 }

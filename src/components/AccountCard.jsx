@@ -4,12 +4,15 @@ import MenuItem from "@mui/material/MenuItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
-import * as React from "react";
+import { useState } from "react";
 import Logout from "@mui/icons-material/Logout";
 import DeleteIcon from "@mui/icons-material/Delete";
+import ConfirmPasswordDialog from "./ConfirmPasswordDialog";
 
-function AccountCard({ handleLogout }) {
-  const [anchorEl, setAnchorEl] = React.useState(null);
+function AccountCard({ handleLogout, handleDelete }) {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -40,13 +43,26 @@ function AccountCard({ handleLogout }) {
           </ListItemIcon>
           Logout
         </MenuItem>
-        <MenuItem onClick={handleClose}>
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            setDialogOpen(true);
+          }}
+        >
           <ListItemIcon>
             <DeleteIcon fontSize="small" />
           </ListItemIcon>
           Deletar Conta
         </MenuItem>
       </Menu>
+      <ConfirmPasswordDialog
+        open={dialogOpen}
+        handleClose={() => setDialogOpen(false)}
+        onConfirm={() => {
+          handleDelete();
+          setDialogOpen(false);
+        }}
+      />
     </>
   );
 }
