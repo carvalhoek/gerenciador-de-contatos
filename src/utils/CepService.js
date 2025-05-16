@@ -34,9 +34,14 @@ export async function getAddressByCEP(cep) {
  * @throws {Error} em caso de parâmetros inválidos ou falha na requisição
  */
 export async function getCepByAddress(uf, city, address) {
+  // Evita bugs por conta de espaços e barras
+  const cleanCity = city.replace(/[^A-Za-zÀ-ÿ\s]/g, "").trim();
+  const cleanAddress = address.replace(/[^A-Za-zÀ-ÿ\s]/g, "").trim();
+
   // Escapa parâmetros para URL
-  const encCity = encodeURIComponent(city.trim());
-  const encAddress = encodeURIComponent(address.trim());
+  const encCity = encodeURIComponent(cleanCity);
+  const encAddress = encodeURIComponent(cleanAddress);
+
   const response = await viaCepApi.get(`/${uf}/${encCity}/${encAddress}/json/`);
   const data = response.data;
 

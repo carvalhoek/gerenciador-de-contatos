@@ -160,6 +160,12 @@ export default function ContactDialog({
     [setLoadingAddress, setAddressOptions]
   );
 
+  const handleAdressSelect = (cep, state, city) => {
+    setValue("cep", cep);
+    setValue("state", state);
+    setValue("city", city);
+  };
+
   // Efeitos de busca
   useEffect(() => {
     setLoadingAddress(true);
@@ -329,9 +335,11 @@ export default function ContactDialog({
                   // grava apenas o logradouro
                   field.onChange(opt.payload.logradouro);
                   // atualiza CEP, estado e cidade
-                  setValue("cep", opt.payload.cep);
-                  setValue("state", opt.payload.uf);
-                  setValue("city", opt.payload.localidade);
+                  handleAdressSelect(
+                    opt.payload.cep,
+                    opt.payload.uf,
+                    opt.payload.localidade
+                  );
                 }}
                 renderInput={(params) => (
                   <SimpleInput
