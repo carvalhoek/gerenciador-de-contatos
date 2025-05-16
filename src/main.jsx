@@ -5,7 +5,7 @@ import App from "./App.jsx";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import LoginPage from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
-import Contacts from "./pages/Contacts.jsx";
+import ContactsPage from "./pages/ContactsPage.jsx";
 import RequireAuth from "./utils/RequireAuth.jsx";
 const router = createBrowserRouter([
   {
@@ -17,7 +17,7 @@ const router = createBrowserRouter([
       </RequireAuth>
     ),
     // Colocar as paginas como filhas faz com se torne mais fácil a expansão
-    children: [{ index: true, element: <Contacts /> }],
+    children: [{ index: true, element: <ContactsPage /> }],
   },
   { path: "/login", element: <LoginPage /> },
   { path: "/register", element: <RegisterPage /> },

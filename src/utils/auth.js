@@ -1,12 +1,12 @@
 // carrega todo o estado, ou inicia vazio
-function loadState() {
+export function loadState() {
   const raw = localStorage.getItem("appState");
   if (raw) return JSON.parse(raw);
   return { users: {}, currentUser: null };
 }
 
 // salva todo o estado
-function saveState(state) {
+export function saveState(state) {
   localStorage.setItem("appState", JSON.stringify(state));
 }
 
