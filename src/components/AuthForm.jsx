@@ -3,6 +3,7 @@ import SimpleInput from "../components/SimpleInput";
 import PasswordInput from "../components/PasswordInput";
 import ConfirmButton from "../components/ConfirmButton";
 import { Link } from "react-router-dom";
+import { Stack } from "@mui/material";
 
 function AuthForm({ mode, onSubmit }) {
   const [name, setName] = useState("");
@@ -22,25 +23,27 @@ function AuthForm({ mode, onSubmit }) {
         {mode === "login" ? "Entrar" : "Cadastrar"}
       </h1>
       <form onSubmit={handleSubmit} className="space-y-4 text-center">
-        {mode === "register" && (
+        <Stack spacing={2}>
+          {mode === "register" && (
+            <SimpleInput
+              type="text"
+              placeholder="Nome completo"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          )}
           <SimpleInput
-            type="text"
-            placeholder="Nome completo"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            type="email"
+            placeholder="E-mail"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
-        )}
-        <SimpleInput
-          type="email"
-          placeholder="E-mail"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <PasswordInput
-          placeholder="Senha"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+          <PasswordInput
+            placeholder="Senha"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </Stack>
         <div className="flex justify-between items-center">
           <Link
             to={mode === "login" ? "/register" : "/login"}

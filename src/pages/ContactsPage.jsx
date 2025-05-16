@@ -1,19 +1,18 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Grid from "@mui/material/Grid";
-import Item from "@mui/material/Grid";
 import Stack from "@mui/material/Stack";
-import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
 import AddIcon from "@mui/icons-material/Add";
 import SortByAlphaIcon from "@mui/icons-material/SortByAlpha";
 import ContactList from "../components/ContactList";
 import ContactDialog from "../components/ContactDialog";
+import Box from "@mui/material/Box";
 import {
   getCurrentUserContacts,
   addContact,
   updateContact,
   deleteContact,
-} from "../utils/contacts";
+} from "../utils/ContactsService";
 import SimpleInput from "../components/SimpleInput";
 import ContactMap from "../components/ContactsMap";
 
@@ -132,13 +131,19 @@ export default function ContactsPage() {
           onCancel={handleCancel}
           onSubmit={handleSubmit}
         />
-
-        <ContactList
-          contacts={filteredContacts}
-          handleDelete={handleDelete}
-          handleEdit={handleEdit}
-          handleContactLocationSelect={handleContactLocationSelect}
-        />
+        <Box
+          sx={{
+            maxHeight: "75vh",
+            overflowY: "auto",
+          }}
+        >
+          <ContactList
+            contacts={filteredContacts}
+            handleDelete={handleDelete}
+            handleEdit={handleEdit}
+            handleContactLocationSelect={handleContactLocationSelect}
+          />
+        </Box>
       </Grid>
       <Grid size={8} sx={{ height: "80vh" }}>
         <ContactMap

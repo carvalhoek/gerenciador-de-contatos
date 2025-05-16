@@ -1,7 +1,7 @@
 // src/App.jsx
 import React from "react";
 import { Outlet, Link } from "react-router-dom";
-import { logoutUser, deleteCurrentUser } from "./utils/auth";
+import { logoutUser, deleteCurrentUser } from "./utils/AuthService";
 import { useNavigate } from "react-router-dom";
 import AccountCard from "./components/AccountCard";
 function App() {

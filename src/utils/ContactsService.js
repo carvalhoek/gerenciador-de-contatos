@@ -1,4 +1,4 @@
-import { loadState, saveState } from "./auth"; // ajuste o caminho conforme seu projeto
+import { loadState, saveState } from "./AuthService"; // ajuste o caminho conforme seu projeto
 
 /**
  * Recupera todos os contatos do usuário atualmente logado.

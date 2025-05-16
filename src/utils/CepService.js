@@ -1,4 +1,3 @@
-// viaCepService.js
 import axios from "axios";
 
 // Cria instância para ViaCEP
@@ -38,8 +37,6 @@ export async function getCepByAddress(uf, city, address) {
   // Escapa parâmetros para URL
   const encCity = encodeURIComponent(city.trim());
   const encAddress = encodeURIComponent(address.trim());
-
-  // Consulta o endpoint /ws/{uf}/{city}/{address}/json/
   const response = await viaCepApi.get(`/${uf}/${encCity}/${encAddress}/json/`);
   const data = response.data;
 

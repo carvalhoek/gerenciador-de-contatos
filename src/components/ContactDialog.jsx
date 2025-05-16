@@ -9,7 +9,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
-import { Stack, TextField, MenuItem, Autocomplete } from "@mui/material";
+import { Stack, MenuItem, Autocomplete, Divider, Grid } from "@mui/material";
 import { debounce } from "lodash";
 import CancelButton from "./CancelButton";
 import ConfirmButton from "./ConfirmButton";
@@ -17,36 +17,7 @@ import { getAddressByCEP, getCepByAddress } from "../utils/CepService";
 import { getCoordinatesByContact } from "../utils/googleGeocodeService";
 import SimpleInput from "./SimpleInput";
 import { googleMapsApiKey } from "../keys";
-// ALTERAR Lista de unidades federativas
-const BR_STATES = [
-  "AC",
-  "AL",
-  "AP",
-  "AM",
-  "BA",
-  "CE",
-  "DF",
-  "ES",
-  "GO",
-  "MA",
-  "MT",
-  "MS",
-  "MG",
-  "PA",
-  "PB",
-  "PR",
-  "PE",
-  "PI",
-  "RJ",
-  "RN",
-  "RS",
-  "RO",
-  "RR",
-  "SC",
-  "SP",
-  "SE",
-  "TO",
-];
+import { BR_STATES } from "../utils/Data";
 
 // Schema de validação
 const schema = z.object({
@@ -96,8 +67,8 @@ export default function ContactDialog({
       address: initialData.address || "",
       number: initialData.number || "",
       complement: initialData.complement || "",
-      latitude: initialData.latitude ?? null,
-      longitude: initialData.longitude ?? null,
+      latitude: initialData.latitude ?? "",
+      longitude: initialData.longitude ?? "",
     },
   });
 
@@ -120,10 +91,9 @@ export default function ContactDialog({
       address: initialData.address || "",
       number: initialData.number || "",
       complement: initialData.complement || "",
-      latitude: initialData.latitude ?? null,
-      longitude: initialData.longitude ?? null,
+      latitude: initialData.latitude ?? "",
+      longitude: initialData.longitude ?? "",
     });
-    console.log("initialData", initialData);
   }, [initialData, reset]);
 
   // Debounce evita chamadas excessivas
@@ -136,7 +106,7 @@ export default function ContactDialog({
           setValue("city", data.localidade);
           setValue("address", data.logradouro);
         } catch (err) {
-          console.error(err);
+          alert(err);
         }
         setLoadingAddress(false);
       }, 500),
@@ -148,29 +118,40 @@ export default function ContactDialog({
     () =>
       debounce(async (state, city, address) => {
         setLoadingAddress(true);
+
+        const letterCountAdress = (address.match(/[A-Za-z]/g) || []).length;
+        const letterCountCity = (city.match(/[A-Za-z]/g) || []).length;
+
+        if (letterCountAdress <= 3 || letterCountCity <= 3) {
+          // se tiver 3 letras ou menos, não faz a requisição evitando o erro da API
+          setLoadingAddress(false);
+          return;
+        }
+
         if (!state || !city || !address) {
           setLoadingAddress(false);
           return;
         }
         try {
           const list = await getCepByAddress(state, city, address);
-          // manter apenas uma entrada por combinação logradouro  cidade
-          const map = new Map();
-          list.forEach((item) => {
-            const key = `${item.logradouro}::${item.localidade}`;
-            if (!map.has(key)) {
-              map.set(key, item);
-            }
-          });
-          const uniqueItems = Array.from(map.values());
-          // montar opções com label e payload completo
-          const options = uniqueItems.map((item) => ({
-            label: `${item.logradouro} - ${item.localidade}`,
-            value: item,
-          }));
+          // filtrar única ocorrência por (logradouro + complemento + "-" + localidade)
+          const seen = new Set();
+          const options = list
+            .filter((item) => {
+              const key = `${item.logradouro}|${item.complemento}|${item.localidade}`;
+              if (seen.has(key)) return false;
+              seen.add(key);
+              return true;
+            })
+            .map((item) => ({
+              label: `${item.logradouro}${
+                item.complemento ? ` ${" - " + item.complemento}` : ""
+              } - ${item.localidade}`,
+              payload: item,
+            }));
           setAddressOptions(options);
         } catch (err) {
-          console.error(err);
+          alert(err);
           setAddressOptions([]);
         } finally {
           setLoadingAddress(false);
@@ -200,7 +181,6 @@ export default function ContactDialog({
     try {
       // obtém todos os campos de endereço do form
       const { cep, state, city, address, number, complement } = getValues();
-      console.log("form", { cep, state, city, address, number, complement });
       // chave de API injetada via props ou env
       const coords = await getCoordinatesByContact(
         { cep, state, city, address, number, complement },
@@ -209,7 +189,7 @@ export default function ContactDialog({
       setValue("latitude", coords.lat);
       setValue("longitude", coords.lng);
     } catch (err) {
-      console.error("Erro ao geocodificar:", err);
+      alert(`Erro ao geocodificar: ${err}`);
     }
   }
   return (
@@ -226,62 +206,116 @@ export default function ContactDialog({
             helperText={errors.name?.message}
             fullWidth
           />
-          <SimpleInput
-            label="CPF"
-            {...register("cpf")}
-            error={!!errors.cpf}
-            helperText={errors.cpf?.message}
-            fullWidth
-          />
-          <SimpleInput
-            label="Telefone"
-            {...register("phone")}
-            error={!!errors.phone}
-            helperText={errors.phone?.message}
-            fullWidth
-          />
-          <TextField
-            label="CEP"
-            {...register("cep")}
-            error={!!errors.cep}
-            helperText={errors.cep?.message}
-            fullWidth
-          />
+
+          <Stack direction="row" spacing={2}>
+            <Controller
+              name="cpf"
+              control={control}
+              defaultValue={initialData.cpf || ""}
+              rules={{
+                required: "CPF é obrigatório",
+                pattern: /^\d{3}\.\d{3}\.\d{3}-\d{2}$/,
+              }}
+              render={({ field }) => (
+                <SimpleInput
+                  {...field}
+                  label="CPF"
+                  error={!!errors.cpf}
+                  helperText={errors.cpf?.message}
+                  fullWidth
+                />
+              )}
+            />
+            <Controller
+              name="phone"
+              control={control}
+              defaultValue={initialData.phone || ""}
+              rules={{
+                required: "Telefone é obrigatório",
+                pattern: /^\(\d{2}\) \d{4,5}-\d{4}$/,
+              }}
+              render={({ field }) => (
+                <SimpleInput
+                  {...field}
+                  label="Telefone"
+                  error={!!errors.phone}
+                  helperText={errors.phone?.message}
+                  fullWidth
+                />
+              )}
+            />
+          </Stack>
 
           <Controller
-            name="state"
+            name="cep"
             control={control}
-            defaultValue={initialData.state || ""}
-            render={({ field: { onChange, value } }) => (
-              <Autocomplete
+            defaultValue={initialData.cep || ""}
+            rules={{
+              required: "CEP é obrigatório",
+              pattern: /^\d{5}-\d{3}$/,
+            }}
+            render={({ field }) => (
+              <SimpleInput
+                {...field}
+                label="CEP"
+                error={!!errors.cep}
+                helperText={errors.cep?.message}
                 fullWidth
-                disablePortal
-                options={BR_STATES}
-                value={value}
-                onChange={(_, newVal) => onChange(newVal)}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Estado"
-                    error={!!errors.state}
-                    helperText={errors.state?.message}
-                    fullWidth
-                  />
-                )}
               />
             )}
           />
 
-          <TextField
-            label="Cidade"
-            {...register("city")}
-            error={!!errors.city}
-            helperText={errors.city?.message}
-            fullWidth
-          />
+          <Grid container spacing={2}>
+            <Grid size={4}>
+              <Controller
+                name="state"
+                control={control}
+                defaultValue={initialData.state || ""}
+                render={({ field: { onChange, value } }) => (
+                  <Autocomplete
+                    fullWidth
+                    disablePortal
+                    options={BR_STATES}
+                    value={value}
+                    onChange={(_, newVal) => onChange(newVal)}
+                    renderInput={(params) => (
+                      <SimpleInput
+                        {...params}
+                        label="Estado"
+                        error={!!errors.state}
+                        helperText={errors.state?.message}
+                        fullWidth
+                      />
+                    )}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid size={8}>
+              <Controller
+                name="city"
+                control={control}
+                defaultValue={initialData.city || ""}
+                rules={{
+                  required: "Cidade é obrigatória",
+                }}
+                render={({ field }) => (
+                  <SimpleInput
+                    {...field}
+                    label="Cidade"
+                    error={!!errors.city}
+                    helperText={errors.city?.message}
+                    fullWidth
+                  />
+                )}
+              />
+            </Grid>
+          </Grid>
+
           <Controller
             name="address"
             control={control}
+            defaultValue={initialData.address || ""}
             render={({ field }) => (
               <Autocomplete
                 freeSolo
@@ -290,11 +324,17 @@ export default function ContactDialog({
                 inputValue={field.value}
                 onInputChange={(_, v) => field.onChange(v)}
                 getOptionLabel={(opt) => opt.label}
-                onChange={(_, opt) =>
-                  opt && setValue("address", opt.value.logradouro)
-                }
+                onChange={(_, opt) => {
+                  if (!opt) return;
+                  // grava apenas o logradouro
+                  field.onChange(opt.payload.logradouro);
+                  // atualiza CEP, estado e cidade
+                  setValue("cep", opt.payload.cep);
+                  setValue("state", opt.payload.uf);
+                  setValue("city", opt.payload.localidade);
+                }}
                 renderInput={(params) => (
-                  <TextField
+                  <SimpleInput
                     {...params}
                     label="Endereço"
                     error={!!errors.address}
@@ -305,39 +345,74 @@ export default function ContactDialog({
               />
             )}
           />
-          <TextField
-            label="Número"
-            {...register("number")}
-            error={!!errors.number}
-            helperText={errors.number?.message}
-            fullWidth
-          />
-          <TextField
-            label="Complemento"
-            {...register("complement")}
-            error={!!errors.complement}
-            helperText={errors.complement?.message}
-            fullWidth
-          />
-          {/* 4) Campos de latitude e longitude */}
-          <SimpleInput
-            label="Latitude"
-            type="number"
-            {...register("latitude", { valueAsNumber: true })}
-            error={!!errors.latitude}
-            helperText={errors.latitude?.message}
-            fullWidth
-          />
-          <SimpleInput
-            label="Longitude"
-            type="number"
-            {...register("longitude", { valueAsNumber: true })}
-            error={!!errors.longitude}
-            helperText={errors.longitude?.message}
-            fullWidth
-          />
 
-          {/* 5) Botão para buscar coordenadas */}
+          <Grid container spacing={2}>
+            <Grid size={4}>
+              <SimpleInput
+                label="Número"
+                {...register("number")}
+                error={!!errors.number}
+                helperText={errors.number?.message}
+                fullWidth
+              />
+            </Grid>
+            <Grid size={8}>
+              <SimpleInput
+                label="Complemento"
+                {...register("complement")}
+                error={!!errors.complement}
+                helperText={errors.complement?.message}
+                fullWidth
+              />
+            </Grid>
+          </Grid>
+
+          <Divider />
+
+          <Stack direction="row" spacing={2}>
+            <Controller
+              name="latitude"
+              control={control}
+              defaultValue={initialData.latitude ?? ""}
+              rules={{
+                required: "Latitude é obrigatória",
+                validate: (value) =>
+                  !isNaN(parseFloat(value)) || "Latitude inválida",
+              }}
+              render={({ field }) => (
+                <SimpleInput
+                  {...field}
+                  slotProps={{ input: { readOnly: true } }}
+                  label="Latitude"
+                  error={!!errors.latitude}
+                  helperText={errors.latitude?.message}
+                  fullWidth
+                />
+              )}
+            />
+
+            <Controller
+              name="longitude"
+              control={control}
+              defaultValue={initialData.longitude ?? ""}
+              rules={{
+                required: "Longitude é obrigatória",
+                validate: (value) =>
+                  !isNaN(parseFloat(value)) || "Longitude inválida",
+              }}
+              render={({ field }) => (
+                <SimpleInput
+                  {...field}
+                  slotProps={{ input: { readOnly: true } }}
+                  label="Longitude"
+                  error={!!errors.longitude}
+                  helperText={errors.longitude?.message}
+                  fullWidth
+                />
+              )}
+            />
+          </Stack>
+
           <Button variant="outlined" onClick={handleGeocode}>
             Buscar Coordenadas
           </Button>

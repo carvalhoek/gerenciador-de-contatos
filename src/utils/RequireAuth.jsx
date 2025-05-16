@@ -1,6 +1,6 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { getCurrentUser } from "../utils/auth";
+import { getCurrentUser } from "../utils/AuthService";
 
 export default function RequireAuth({ children }) {
   const user = getCurrentUser();
