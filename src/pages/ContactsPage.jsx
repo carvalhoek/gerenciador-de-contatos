@@ -15,6 +15,7 @@ import {
   deleteContact,
 } from "../utils/contacts";
 import SimpleInput from "../components/SimpleInput";
+import ContactMap from "../components/ContactsMap";
 
 export default function ContactsPage() {
   const [contacts, setContacts] = useState([]);
@@ -23,6 +24,10 @@ export default function ContactsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [mode, setMode] = useState("create");
   const [currentContact, setCurrentContact] = useState({});
+  const [selectedCoords, setSelectedCoords] = useState({
+    lat: null,
+    lng: null,
+  });
 
   // Carrega contatos do usuário atual ao montar
   useEffect(() => {
@@ -48,6 +53,13 @@ export default function ContactsPage() {
         return 0;
       });
   }, [contacts, searchTerm, asc]);
+
+  const handleContactLocationSelect = (contact) => {
+    setSelectedCoords({
+      lat: contact.latitude,
+      lng: contact.longitude,
+    });
+  };
 
   // Abre diálogo em modo "criação"
   const handleNew = () => {
@@ -125,10 +137,14 @@ export default function ContactsPage() {
           contacts={filteredContacts}
           handleDelete={handleDelete}
           handleEdit={handleEdit}
+          handleContactLocationSelect={handleContactLocationSelect}
         />
       </Grid>
-      <Grid size={8}>
-        <Item className="bg-amber-900">size=4</Item>
+      <Grid size={8} sx={{ height: "80vh" }}>
+        <ContactMap
+          lat={selectedCoords.lat}
+          lng={selectedCoords.lng}
+        ></ContactMap>
       </Grid>
     </Grid>
   );

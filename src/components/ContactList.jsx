@@ -14,7 +14,12 @@ import EditIcon from "@mui/icons-material/Edit";
 import CancelButton from "./CancelButton";
 import ConfirmButton from "./ConfirmButton";
 
-function ContactList({ contacts, handleDelete, handleEdit }) {
+function ContactList({
+  contacts,
+  handleDelete,
+  handleEdit,
+  handleContactLocationSelect,
+}) {
   const [selectedContact, setSelectedContact] = useState(null);
   const [open, setOpen] = useState(false);
 
@@ -32,6 +37,9 @@ function ContactList({ contacts, handleDelete, handleEdit }) {
   };
   const onEditContact = (contact) => {
     handleEdit(contact);
+  };
+  const onContactLocationSelect = (contact) => {
+    handleContactLocationSelect(contact);
   };
   return (
     <div>
@@ -60,7 +68,7 @@ function ContactList({ contacts, handleDelete, handleEdit }) {
             }
           >
             <ListItemText
-              onClick={() => alert("oi")}
+              onClick={() => onContactLocationSelect(contact)}
               primary={contact.name + " - " + contact.cpf}
               secondary={contact.phone}
             />
