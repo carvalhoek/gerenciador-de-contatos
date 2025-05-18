@@ -7,6 +7,7 @@ import InputLabel from "@mui/material/InputLabel";
 import InputAdornment from "@mui/material/InputAdornment";
 import FormControl from "@mui/material/FormControl";
 
+// fornece uma maneira fácil de estilizar o input de senha ao longo da aplicação
 function PasswordInput(props) {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -21,7 +22,7 @@ function PasswordInput(props) {
   };
   return (
     <FormControl variant="outlined" fullWidth>
-      <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
+      <InputLabel htmlFor="outlined-adornment-password">Senha</InputLabel>
       <OutlinedInput
         {...props}
         id="outlined-adornment-password"
@@ -29,9 +30,6 @@ function PasswordInput(props) {
         endAdornment={
           <InputAdornment position="end">
             <IconButton
-              aria-label={
-                showPassword ? "hide the password" : "display the password"
-              }
               onClick={handleClickShowPassword}
               onMouseDown={handleMouseDownPassword}
               onMouseUp={handleMouseUpPassword}
@@ -41,7 +39,7 @@ function PasswordInput(props) {
             </IconButton>
           </InputAdornment>
         }
-        label="Password"
+        label="Senha"
       />
     </FormControl>
   );

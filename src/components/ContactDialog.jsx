@@ -135,6 +135,8 @@ export default function ContactDialog({
         try {
           const list = await getCepByAddress(state, city, address);
           // filtrar única ocorrência por (logradouro + complemento + "-" + localidade)
+          // Fornece o CEP correto de acordo com a altura em casos de ruas com mais de um CEP
+          // Exemplo: República argentina, Rua Chile
           const seen = new Set();
           const options = list
             .filter((item) => {
@@ -167,6 +169,7 @@ export default function ContactDialog({
   };
 
   // Efeitos de busca
+  // Valida CEP e busca endereço
   useEffect(() => {
     setLoadingAddress(true);
     if (watchedCEP && /^\d{5}-?\d{3}$/.test(watchedCEP)) {
@@ -174,6 +177,7 @@ export default function ContactDialog({
     }
   }, [watchedCEP, lookupByCep]);
 
+  // Busca endereços por estado, cidade e logradouro
   useEffect(() => {
     setLoadingAddress(true);
     lookupByAddress(watchedState, watchedCity, watchedAddress);
@@ -187,7 +191,6 @@ export default function ContactDialog({
     try {
       // obtém todos os campos de endereço do form
       const { cep, state, city, address, number, complement } = getValues();
-      // chave de API injetada via props ou env
       const coords = await getCoordinatesByContact(
         { cep, state, city, address, number, complement },
         googleMapsApiKey

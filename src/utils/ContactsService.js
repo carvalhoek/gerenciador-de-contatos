@@ -1,4 +1,6 @@
-import { loadState, saveState } from "./AuthService"; // ajuste o caminho conforme seu projeto
+// Apesar de não interagir com uma API, foi classifico com service pois em uma aplicação real seria
+
+import { loadState, saveState } from "./AuthService";
 
 /**
  * Recupera todos os contatos do usuário atualmente logado.

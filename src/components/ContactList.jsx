@@ -11,8 +11,6 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
 import EditIcon from "@mui/icons-material/Edit";
-import CancelButton from "./CancelButton";
-import ConfirmButton from "./ConfirmButton";
 
 function ContactList({
   contacts,
